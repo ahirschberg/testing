@@ -3,25 +3,67 @@
  */
 public class LList<T> {
 
+    private static class LListTest
+    {
+        public static void runTests()
+        {
+            new LListTest().testAll();
+        }
+        private void testAll()
+        {
+            testGet();
+            testToString();
+            testAdd();
+            testToArray();
+        }
+
+        private LList<String> generateLList()
+        {
+            return new LList<String>("ele1", "ele2", "ele3", "ele4");
+        }
+
+        private void testGet()
+        {
+            LList<String> llist = generateLList();
+            System.out.println("Get element at position 1: " + llist.get(1));
+        }
+
+        private void testToString()
+        {
+            LList<String> llist = generateLList();
+            System.out.println("LList.toString() output: " + llist.toString());
+        }
+
+        private void testAdd()
+        {
+            LList<String> llist = generateLList();
+
+            // Add element to the end of the list
+            llist.add("new_element_at_end");
+            System.out.println("Add element to the end of the list: " + llist.toString());
+
+            // Insert element at index
+            llist.add("new_element_at_index_2", 2);
+            System.out.println("Add element at index 2: " + llist.toString());
+        }
+
+        private void testToArray()
+        {
+            LList<String> llist = generateLList();
+
+            // Test the toArray method
+            StringBuilder arraySB = new StringBuilder();
+            Object[] llistArr = llist.toArray();
+            for (int i = 0; i < llistArr.length; i++ ) {
+                arraySB.append(llistArr[i]);
+                if (i < llistArr.length - 1) arraySB.append(", ");
+            }
+            System.out.println("LList.toArray(): " + arraySB.toString());
+        }
+    }
     public static void main(String[] args)
     {
-        LList<String> llist = new LList<String>("sudo", "rm", "-rf");
-        System.out.println("Data: " + llist.get(1));
-        //System.out.println("Data: " + llist.get(4));
-        llist.add("echo lel");
-        System.out.println("Data: " + llist.get(3));
-        System.out.println(llist.toString());
-        llist.add("bash crap", 2);
-        System.out.println(llist.toString());
-
-        // Test the toArray method
-        StringBuilder arraySB = new StringBuilder();
-        Object[] llistArr = llist.toArray();
-        for (int i = 0; i < llistArr.length; i++ ) {
-            arraySB.append(llistArr[i]);
-            if (i < llistArr.length - 1) arraySB.append(", ");
-        }
-        System.out.println(arraySB.toString());
+        LListTest.runTests();
     }
 
     public LList(T... data)
@@ -30,7 +72,6 @@ public class LList<T> {
         Node nextNode = null;
         for (int i = data.length - 1; i >= 0; i--)
         {
-            System.out.println("Setting nextNode to node with data " + data[i] + " and next " + nextNode);
             nextNode = new Node(data[i], nextNode);
 
             this.size++;
@@ -44,18 +85,17 @@ public class LList<T> {
     }
     public Object get(int index)
     {
-        Node currLink = getFirst();
+        Node currNode = getFirst();
 
         if (index >= this.size())
             throw new IndexOutOfBoundsException("Index " + index + " out of bounds for LList " + this.toString());
 
         for (int i = 0; i < index; i++)
         {
-            System.out.println(currLink);
-            currLink = currLink.next;
+            currNode = currNode.next;
         }
 
-        return currLink.data;
+        return currNode.data;
     }
 
     public void add(T item)
@@ -65,7 +105,6 @@ public class LList<T> {
             loopLink = loopLink.next;
 
         loopLink.setNext(new Node(item, null));
-        System.out.println("loopLink " + loopLink.toString());
 
         this.size++;
     }
