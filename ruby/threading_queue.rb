@@ -5,6 +5,7 @@ class Parser
 
   def initialize()
     @queue = Queue.new # queue is a thread safe list-like element 
+    @lock  = Mutex.new
   end
 
   def add(*files)
@@ -18,8 +19,10 @@ class Parser
 
   def parse # the code that calls this method is responsible for threading
     while true do
-      puts "Waiting for queue" if @queue.empty?
-      file = @queue.pop # this method is blocking if @queue is empty
+      file = @lock.synchronize do
+        puts "Waiting for queue" if @queue.empty?
+        @queue.pop # this method is blocking if @queue is empty
+      end
       break if file == @@END_PARSE_SYM # if the end parse message is encountered, break the loop
       puts "Beginning parse of #{file}..."
       sleep rand() * 2
