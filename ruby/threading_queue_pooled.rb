@@ -1,12 +1,12 @@
 class ThreadPool
   def initialize(num_threads)
     @parsers      = Queue.new
-    num_threads.times.each do 
+    num_threads.times.each_with_index do |i| 
       @parsers << Thread.new do
         until @finished do
-          puts "worker called"
+          puts "worker #{i} called"
           task = @task_queue.deq
-          puts "dequeued #{task}"
+          puts "dequeued #{task} on thread #{i}"
           task.call
         end
       end
