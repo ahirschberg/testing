@@ -1,13 +1,23 @@
+require 'thread'
+
 class ThreadPool
   def initialize(num_threads)
-    @parsers      = Queue.new
+    @parsers  = Queue.new
+    @lock     = Mutex.new
+    @resource = ConditionVariable.new
+
     num_threads.times.each_with_index do |i| 
       @parsers << Thread.new do
         until @finished do
-          puts "worker #{i} called"
-          task = @task_queue.deq
-          puts "dequeued #{task} on thread #{i}"
-          task.call
+          @lock.synchronize do
+            @resource.wait(@lock)
+            task = @task_queue.deq 
+            @resource.signal
+
+            sleep rand() * 10
+            task_number = task.call
+            puts "T#{i} completes #{task_number}"
+          end
         end
       end
     end
@@ -17,11 +27,10 @@ class ThreadPool
   end
   
   def push(task)
-    puts "#{task} pushed to task_queue"
     @task_queue.push task
   end
 
-  attr_accessor :finished
+  attr_accessor :finished, :resource
 end  
 
 Thread.abort_on_exception = true
@@ -30,7 +39,9 @@ tp = ThreadPool.new 4
 
 i = 0
 loop do
-  tp.push lambda {puts "widget #{i}"}
-  sleep 1
+  puts "adding #{i} to queue"
+  tp.push lambda {i}
+  tp.resource.signal
+  sleep 0.5 * i
   i+=1
 end
