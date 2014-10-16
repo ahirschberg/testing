@@ -1,18 +1,17 @@
 class ThreadPool
   def initialize(num_threads)
-    @parsers  = Queue.new
+    @threads  = Array.new
     @lock     = Mutex.new
     @resource = ConditionVariable.new
 
     num_threads.times.each_with_index do |i| 
-      @parsers << Thread.new do
+      @threads << Thread.new do
         until @finished do
           task = nil
           @lock.synchronize do
             @resource.wait(@lock)
             task = @task_queue.pop
           end
-            #sleep 0.1
             puts "T#{i} begins #{task.id}"
             task_data = task.call
             sleep rand() * 10
@@ -27,6 +26,15 @@ class ThreadPool
   
   def push(task)
     @task_queue.push task
+  end
+
+  def join_all # does not work correctly
+    @threads.each {|thread| thread.join}
+  end
+
+  def kill_all
+    @finished = true
+    @threads.each {|thread| thread.kill}
   end
 
   attr_accessor :finished, :resource
@@ -52,10 +60,12 @@ Thread.abort_on_exception = true
 tp = ThreadPool.new 4
 
 i = 0
-loop do
-  tp.push Task.new(i) {rand() * rand()}
+until i > 20 do
+  tp.push Task.new(i) {"..."}
   puts "adding #{i} to queue #{tp.task_queue.inspect}"
   tp.resource.signal
-  sleep 1
   i+=1
+
+  sleep rand()
 end
+#tp.join_all
