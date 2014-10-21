@@ -3,69 +3,13 @@
  */
 public class LList<T> {
 
-    private static class LListTest
-    {
-        public static void runTests()
-        {
-            new LListTest().testAll();
-        }
-        private void testAll()
-        {
-            testGet();
-            testToString();
-            testAdd();
-            testToArray();
-        }
 
-        private LList<String> generateLList()
-        {
-            return new LList<String>("ele1", "ele2", "ele3", "ele4");
-        }
-
-        private void testGet()
-        {
-            LList<String> llist = generateLList();
-            System.out.println("Get element at position 1: " + llist.get(1));
-        }
-
-        private void testToString()
-        {
-            LList<String> llist = generateLList();
-            System.out.println("LList.toString() output: " + llist.toString());
-        }
-
-        private void testAdd()
-        {
-            LList<String> llist = generateLList();
-
-            // Add element to the end of the list
-            llist.add("new_element_at_end");
-            System.out.println("Add element to the end of the list: " + llist.toString());
-
-            // Insert element at index
-            llist.add("new_element_at_index_2", 2);
-            System.out.println("Add element at index 2: " + llist.toString());
-        }
-
-        private void testToArray()
-        {
-            LList<String> llist = generateLList();
-
-            // Test the toArray method
-            StringBuilder arraySB = new StringBuilder();
-            Object[] llistArr = llist.toArray();
-            for (int i = 0; i < llistArr.length; i++ ) {
-                arraySB.append(llistArr[i]);
-                if (i < llistArr.length - 1) arraySB.append(", ");
-            }
-            System.out.println("LList.toArray(): " + arraySB.toString());
-        }
-    }
     public static void main(String[] args)
     {
         LListTest.runTests();
     }
 
+    // O( n ) where n = data.length
     public LList(T... data)
     {
         this.size = 0;
@@ -79,10 +23,14 @@ public class LList<T> {
 
         firstLink = nextNode;
     }
+
+    // O( 1 )
     private Node getFirst()
     {
         return firstLink;
     }
+
+    // O( n )
     public Object get(int index)
     {
         Node currNode = getFirst();
@@ -98,6 +46,7 @@ public class LList<T> {
         return currNode.data;
     }
 
+    // O( n )
     public void add(T item)
     {
         Node loopLink = getFirst();
@@ -109,6 +58,7 @@ public class LList<T> {
         this.size++;
     }
 
+    // O( n )
     public void add(T item, int index)
     {
         Node currNode = this.getFirst();
@@ -124,12 +74,14 @@ public class LList<T> {
         this.size++;
     }
 
+    // O( 1 )
     public int size() { return this.size; }
 
+    // O( n )
     public T[] toArray()
     {
         @SuppressWarnings("unchecked")
-        T[] result = (T[]) new Object[this.size()];
+        T[] result = (T[]) new Object[this.size()]; // can't directly create an array of type T, thanks Java
 
         Node nextNode = this.getFirst();
         for (int i = 0; i < this.size(); i++)
@@ -140,6 +92,7 @@ public class LList<T> {
         return result;
     }
 
+    // O( n )
     public String toString()
     {
         StringBuilder sb = new StringBuilder().append("<LList elements=[");
@@ -162,12 +115,14 @@ public class LList<T> {
     class Node {
         public Node(T data, Node nextNode) { this.data = data; this.next = nextNode; }
 
+        // O( 1 )
         public String toString() {
             return new StringBuilder()
                     .append("<Node data=\"").append(this.data.toString())
                     .append("\", next_null=").append(this.next == null).append(">").toString();
         }
 
+        // O( 1 )
         public void setNext(Node next) {
             this.next = next;
         }
