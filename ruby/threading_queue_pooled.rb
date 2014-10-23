@@ -28,8 +28,10 @@ class ThreadPool
     @task_queue.push task
   end
 
-  def join_all # does not work correctly
-    @threads.each {|thread| thread.join}
+  def join_all
+    #@threads.each {|thread| thread.join}
+    @resource.broadcast
+    puts "join_all doesn't work."
   end
 
   def kill_all
@@ -50,7 +52,7 @@ class Task
     @block.call
   end
   def to_s
-    "#<Task: @id=#{@id}"
+    "#<Task: @id=#{@id}>"
   end
   attr_reader :id
 end
@@ -62,10 +64,11 @@ tp = ThreadPool.new 4
 i = 0
 until i > 20 do
   tp.push Task.new(i) {"..."}
-  puts "adding #{i} to queue #{tp.task_queue.inspect}"
+  puts "adding #{i} to queue" ##{tp.task_queue.inspect}"
   tp.resource.signal
   i+=1
 
   sleep rand()
 end
-#tp.join_all
+tp.join_all
+sleep
