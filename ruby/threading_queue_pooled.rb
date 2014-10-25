@@ -9,18 +9,20 @@ class ThreadPool
   end
   
   def populate_workers(workers_collection, num_workers)
-    num_workers.times.each do |i| 
+    num_workers.times do |i| 
       workers_collection << Thread.new do
+
         until @task_queue.empty? and @finished do
-          # how should scope of task variable be handled?
-          # having Thread.exit doesn't really matter because it doesn't return, only exits.  I think this is a non-issue
-            task = @task_queue.pop
-            puts "T#{i} begins #{task.id}"
-            task_data = task.call
-            sleep rand() * 10
-            puts "T#{i} completes #{task.id}: #{task_data}"
+          task = @lock.synchronize do #not sure if this is necessary
+            @task_queue.pop
+          end
+          puts "T#{i} begins #{task.id}"
+          task_data = task.call
+          sleep rand() * 10
+          puts "T#{i} completes #{task.id}: #{task_data}"
         end
       end
+
     end
   end
 
@@ -30,7 +32,11 @@ class ThreadPool
 
   def join_all
     @finished = true
-    @threads.each {|thread| thread.join}
+    if @task_queue.empty? #prevents deadlock for infinite waiting on Queue#pop
+      self.kill_all
+    else
+      @threads.each {|thread| thread.join}
+    end
   end
 
   def kill_all
@@ -61,7 +67,7 @@ Thread.abort_on_exception = true
 tp = ThreadPool.new 4
 
 i = 0
-until i > 20 do
+20.times do
   tp.push Task.new(i) {"..."}
   puts "adding #{i} to queue" ##{tp.task_queue.inspect}"
   i+=1
