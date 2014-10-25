@@ -1,17 +1,20 @@
 class ThreadPool
   def initialize(num_threads)
-    @threads  = Array.new
-    @lock     = Mutex.new
-    @resource = ConditionVariable.new
+    @threads      = Array.new
+    @lock         = Mutex.new
+    @task_queue   = Queue.new
+    @finished     = false
 
-    num_threads.times.each_with_index do |i| 
-      @threads << Thread.new do
-        until @finished do
-          task = nil
-          @lock.synchronize do
-            @resource.wait(@lock)
+    populate_workers @threads, num_threads
+  end
+  
+  def populate_workers(workers_collection, num_workers)
+    num_workers.times.each do |i| 
+      workers_collection << Thread.new do
+        until @task_queue.empty? and @finished do
+          # how should scope of task variable be handled?
+          # having Thread.exit doesn't really matter because it doesn't return, only exits.  I think this is a non-issue
             task = @task_queue.pop
-          end
             puts "T#{i} begins #{task.id}"
             task_data = task.call
             sleep rand() * 10
@@ -19,19 +22,15 @@ class ThreadPool
         end
       end
     end
-
-    @task_queue   = Queue.new
-    @finished     = false
   end
-  
+
   def push(task)
     @task_queue.push task
   end
 
   def join_all
-    #@threads.each {|thread| thread.join}
-    @resource.broadcast
-    puts "join_all doesn't work."
+    @finished = true
+    @threads.each {|thread| thread.join}
   end
 
   def kill_all
@@ -65,10 +64,10 @@ i = 0
 until i > 20 do
   tp.push Task.new(i) {"..."}
   puts "adding #{i} to queue" ##{tp.task_queue.inspect}"
-  tp.resource.signal
   i+=1
 
   sleep rand()
 end
+puts "join started"
 tp.join_all
-sleep
+puts "join completed"
