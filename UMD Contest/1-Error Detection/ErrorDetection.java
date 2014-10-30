@@ -8,7 +8,7 @@ public class ErrorDetection {
         boolean valid = false;
 
         /* ------------------- INSERT CODE HERE ---------------------*/
-        String binary = get16BitBinary(value);
+        String binary = Integer.toBinaryString(value); //get16BitBinary(value) is unnecessary
         int num1s = 0;
         for (int i = 0; i < binary.length(); i++)
         {
@@ -21,25 +21,6 @@ public class ErrorDetection {
 
         return valid;
     }
-
-    /* ------------------- ADDITIONAL CODE INSERTED HERE ---------------------*/
-
-    /** Takes an integer, and converts it to a 16 bit integer
-     *
-     * @param integer
-     * @return 16 bit integer as a String
-     */
-    private static String get16BitBinary(int integer)
-    {
-        String shortBinary = Integer.toBinaryString(integer);
-        StringBuilder missingZeroes = new StringBuilder();
-        for (int i = 0; i < (16 - shortBinary.length()); i++)
-        {
-            missingZeroes.append("0");
-        }
-        return missingZeroes.toString() + shortBinary;
-    }
-    /* -------------------- END OF ADDITIONAL INSERTION --------------------*/
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
