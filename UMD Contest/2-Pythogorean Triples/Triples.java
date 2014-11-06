@@ -41,8 +41,8 @@ public class Triples {
 
                 }
             }
-        /* -------------------- END OF INSERTION --------------------*/
         }
+        /* -------------------- END OF INSERTION --------------------*/
     }
 
     public static void main(String[] args) {
