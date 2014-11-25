@@ -7,7 +7,7 @@ public class PythagoreanSpeed {
     public static void main(String[] args) {
         int passes = 100;
         int[] amounts = {50, 100, 500, 1000};
-        Pythagorean[] strategies = {new Pythagorean1(), new Pythagorean2(), new Pythagorean3(), new Pythagorean4()};
+        Pythagorean[] strategies = {new Pythagorean1(), new Pythagorean2(), new Pythagorean3(), new Pythagorean4(), new Pythagorean5()};
         long[][][] timings = new long[amounts.length][strategies.length][passes + 1];
 
         for (int amounts_index = 0; amounts_index < amounts.length; amounts_index++) {
