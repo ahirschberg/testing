@@ -79,7 +79,7 @@ module SolveTSP
         total_distance  += min_dist
       end
 
-      # connect last and first elements
+      # connect endpoints
       total_distance += curr_point.distance(points.first)
       curr_point.link = points.first
 
@@ -98,34 +98,33 @@ module SolveTSP
         points.each do |point1|
           next if point1.links.length >= 2 # if point1 already has two connections
           points.each do |point2|
-            next if point2.links.length >= 2 or chain_contains(point1, point2) 
-              pt_distance = point1.distance(point2)
-              if pt_distance <= min_distance
-                min_distance = pt_distance
-                min_dist_point1 = point1
-                min_dist_point2 = point2
-              end
+            next if point2.links.length >= 2 or chain_contains(point1, point2) # if point2 already has two connections or if joining point1 and point2 would connect a chain of points to itself
+            pt_distance = point1.distance(point2)
+            if pt_distance <= min_distance
+              min_distance = pt_distance
+              min_dist_point1 = point1
+              min_dist_point2 = point2
             end
+          end
         end
-        #puts points.join(", ")
-        if min_distance == Float::INFINITY
+        if min_distance == Float::INFINITY # if no matches found, everything except the endpoints have been linked
           endpoint = nil
-          points.each do |point|
-            if point.links.length == 1
+          points.each do |other_endpoint|
+            if other_endpoint.links.length == 1
               if endpoint
-                endpoint.links << point
-                point.links << endpoint
-                total_distance += point.distance(endpoint)
-                #puts "  Min distance was endpoints #{endpoint.id} to #{point.id}"
+                endpoint.links << other_endpoint
+                other_endpoint.links << endpoint
+                total_distance += other_endpoint.distance(endpoint)
+                #puts "Min distance was endpoints #{endpoint.id} to #{point.id}"
                 break
               else
-                endpoint = point
+                endpoint = other_endpoint
               end
             end
           end
           break
         end
-        #puts "  Min distance was #{min_dist_point1.id} to #{min_dist_point2.id}"
+        #puts "Min distance was #{min_dist_point1.id} to #{min_dist_point2.id}"
         min_dist_point1.links << min_dist_point2
         min_dist_point2.links << min_dist_point1
         total_distance += min_distance
@@ -133,18 +132,16 @@ module SolveTSP
       return points, total_distance
     end
 
+    # check if a point is already directly or indirectly linked to another
     def self.chain_contains(test_point_a, test_point_b)
-      #puts "Checking #{test_point_a} for #{test_point_b}"
       return true if test_point_a == test_point_b
 
       test_point_a.links.each do |linked_point|
         prev_member = test_point_a
         while linked_point
-          #puts "> Checking #{linked_point} == #{test_point_b}: #{linked_point == test_point_b}"
           return true if linked_point == test_point_b
 
           jump_to_next = linked_point.links - [prev_member] #remove 
-          #puts "> got #{jump_to_next} from #{linked_point.links.join ","}"
           prev_member = linked_point
           linked_point = jump_to_next.first
         end
