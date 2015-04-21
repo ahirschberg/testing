@@ -1,4 +1,9 @@
+# ignore everything
+*
+# Don't ignore directories, so we can recurse into them
+!*/
+!.gitignore
 !*.c
 !*.java
 !*.py
-!*.ruby
+!*.rb
